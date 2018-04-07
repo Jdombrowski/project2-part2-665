@@ -260,27 +260,28 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         current_index = pindex
         current_depth = pdepth
 
-        if pindex == gameState.getNumAgents():
+        if current_index == gameState.getNumAgents():
             current_depth += 1
             current_index = 0
 
         legalActions = gameState.getLegalActions(current_index)
-        if (len(legalActions) == 0) or (pdepth == self.depth):
+        if (len(legalActions) == 0) or (current_depth == self.depth):
             return '', self.evaluationFunction(gameState)
 
-        if pindex == 0:
+        if current_index== 0:
             return self.maxValue(gameState, current_index, current_depth, alpha, beta)
         else:
             return self.minValue(gameState, current_index, current_depth, alpha, beta)
 
     def maxValue(self, gameState, pindex, pdepth, alpha, beta):
+        current_index = pindex
         best_max_action = ''
         current_value = -float('inf')
 
-        for possible_move in gameState.getLegalActions(pindex):
-            successor = gameState.generateSuccessor(pindex, possible_move)
+        for possible_move in gameState.getLegalActions(current_index):
+            successor = gameState.generateSuccessor(current_index, possible_move)
 
-            temp_move, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
+            temp_move, temp_value = self.alphaBetaPrune(successor, current_index + 1, pdepth, alpha, beta)
 
             current_value = max(current_value, temp_value)
 
@@ -295,13 +296,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return best_max_action, current_value
 
     def minValue(self, gameState, pindex, pdepth, alpha, beta):
+        current_index = pindex
         best_min_action = ''
         current_value = float('inf')
 
-        for possible_move in gameState.getLegalActions(pindex):
+        for possible_move in gameState.getLegalActions(current_index):
             successor = gameState.generateSuccessor(pindex, possible_move)
 
-            temp_move, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
+            temp_move, temp_value = self.alphaBetaPrune(successor, current_index + 1, pdepth, alpha, beta)
 
             current_value = min(current_value, temp_value)
 
@@ -314,45 +316,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 best_min_action = possible_move
 
         return best_min_action, current_value
-
-    #  ---------------------------------------------------------------------------------------
-    # alright listen up me, I'm going to apply the pruning to the minimax because it is so much extra work to do things otherwise
-
-    # def alphaBetaPrune(self, current_node, alpha, beta, current_depth, player_index):
-    #     if player_index >= current_node.getNumAgents():
-    #         current_depth += 1
-    #         player_index = 0
-    #
-    #     #  also need to check for win states and loss states
-    #     if (current_depth == self.depth) or current_node in current_node.problem.loseStates or current_node in current_node.problem.winStates:
-    #
-    #         return self.evaluationFunction(current_node)
-    #     else:
-    #         current_depth += 1
-    #         if player_index == 0:
-    #             return self.maximizer(current_node, alpha, beta, current_depth, player_index)
-    #         else:
-    #             return self.minimizer(current_node, alpha, beta, current_depth, player_index)
-    #
-    # def maximizer(self, current_node, alpha, beta, current_depth, player_index):
-    #     current_value = -float('inf')
-    #     for possible_move in current_node.getLegalActions():
-    #         successor = current_node.generateSuccessor(player_index, possible_move)
-    #         current_value = max(current_value, self.alphaBetaPrune(successor, alpha, beta, current_depth, player_index+1))
-    #         if current_value > beta:
-    #             return current_value
-    #         alpha = max(alpha, current_value)
-    #     return current_value
-    #
-    # def minimizer(self, current_node, alpha, beta, current_depth, player_index):
-    #     current_value = float('inf')
-    #     for possible_move in current_node.getLegalActions():
-    #         successor = current_node.generateSuccessor(player_index, possible_move)
-    #         current_value = min(current_value, self.alphaBetaPrune(successor, alpha, beta, current_depth, player_index+1))
-    #         if current_value < alpha:
-    #             return current_value
-    #         beta = min(beta, current_value)
-    #     return current_value
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
