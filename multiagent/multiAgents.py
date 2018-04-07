@@ -268,7 +268,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if (len(legalActions) == 0) or (current_depth == self.depth):
             return '', self.evaluationFunction(gameState)
 
-        if current_index== 0:
+        if current_index == 0:
             return self.maxValue(gameState, current_index, current_depth, alpha, beta)
         else:
             return self.minValue(gameState, current_index, current_depth, alpha, beta)
@@ -331,7 +331,55 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expectimax(0, gameState, 0)[0]
+
+    def expectimax(self, pindex, gameState, pdepth):
+        current_index = pindex
+        current_depth = pdepth
+
+        if current_index == gameState.getNumAgents():
+            current_depth += 1
+            current_index = 0
+
+        legalActions = gameState.getLegalActions(current_index)
+        if (len(legalActions) == 0) or (current_depth == self.depth):
+            return '', self.evaluationFunction(gameState)
+
+        if current_index == 0:
+            return self.maxValue(current_index, gameState, current_depth)
+        else:
+            return self.minValue(current_index, gameState, current_depth)
+
+    def maxValue(self, pindex, current_game_state, current_depth):
+        current_index = pindex
+        currentValue = -float('inf')
+        best_action = ''
+
+        for possible_move in current_game_state.getLegalActions(current_index):
+            successor = current_game_state.generateSuccessor(current_index, possible_move)
+
+            _, this_value = self.expectimax(current_index + 1, successor, current_depth)
+
+            if this_value > currentValue:
+                currentValue = this_value
+                best_action = possible_move
+
+        return best_action, currentValue
+
+    def minValue(self, current_index, current_gameState, current_depth):
+        current_sum = 0
+        count = 0
+        best_action = ''
+
+        for possible_move in current_gameState.getLegalActions(current_index):
+            successor = current_gameState.generateSuccessor(current_index, possible_move)
+
+            _, this_value = self.expectimax(current_index + 1, successor, current_depth)
+
+            current_sum += this_value
+            count += 1
+
+        return best_action, current_sum/count
 
 def betterEvaluationFunction(currentGameState):
     """
