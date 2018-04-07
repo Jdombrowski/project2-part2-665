@@ -285,7 +285,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             current_value = max(current_value, temp_value)
 
-            if current_value >= beta:
+            if current_value > beta:
                 best_max_action = possible_move
                 return best_max_action, current_value
             # alpha = max(alpha, current_value)
@@ -307,7 +307,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
             current_value = min(current_value, temp_value)
 
-            if current_value <= alpha:
+            if current_value < alpha:
                 best_min_action = possible_move
                 return best_min_action, current_value
             # beta = min(beta, current_value)
@@ -389,7 +389,54 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # successorGameState = currentGameState.generatePacmanSuccessor(action)
+    pacman_pos = currentGameState.data.agentStates[0]
+    newFood = currentGameState.data.food.asList()
+    newGhostStates = currentGameState.data.agentStates[1]
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    "*** YOUR CODE HERE ***"
+
+    foodList = newFood.asList()
+    capList = currentGameState.data.capsules.aslist()
+    nearest_ghost_distance = 99999
+    nearest_food_distance = 99999
+    scaredGhostMod = 0
+    actionMod = 0
+    nearest_cap_dist = 999
+
+    for ghost in newGhostStates:
+        temp_distance = util.manhattanDistance(pacman_pos, ghost.configuration.pos)
+        nearest_ghost_distance = min(nearest_ghost_distance, temp_distance)
+
+    for current_food in foodList:
+        temp_distance = util.manhattanDistance(pacman_pos, current_food)
+        nearest_food_distance = min(nearest_food_distance, temp_distance)
+
+    # add penalty for mot moving
+    # if action == 'Stop':
+    #     actionMod = -10
+
+    for cap in capList:
+        temp_distance = util.manhattanDistance(pacman_pos, cap)
+        nearest_cap_dist = min(nearest_cap_dist, temp_distance)
+
+    #  avg 1255.0
+    #  total_value = successorGameState.getScore() + nearest_ghost_distance/nearest_food_distance + actionMod + scaredGhostMod
+
+    #  avg 1336.7
+    if nearest_ghost_distance < newScaredTimes[0]:
+        #  go towards the ghost
+        scaredGhostMod = 100
+        total_value = currentGameState.getScore() - nearest_ghost_distance / nearest_food_distance + actionMod + scaredGhostMod
+    else:
+        total_value = currentGameState.getScore() + nearest_ghost_distance / nearest_food_distance + actionMod + scaredGhostMod
+
+    if capList:
+        total_value = total_value + nearest_ghost_distance / nearest_cap_dist
+
+    # print total_value
+    return total_value
 
 # Abbreviation
 better = betterEvaluationFunction
