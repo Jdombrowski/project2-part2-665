@@ -75,12 +75,6 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
 
-
-
-
-
-        # todo
-        "*************************************************************************************************************"
         foodList = newFood.asList()
         capList = successorGameState.getCapsules()
         nearest_ghost_distance = 99999
@@ -280,40 +274,46 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return self.minValue(gameState, current_index, current_depth, alpha, beta)
 
     def maxValue(self, gameState, pindex, pdepth, alpha, beta):
-        best_action = ''
+        best_max_action = ''
         current_value = -float('inf')
 
         for possible_move in gameState.getLegalActions(pindex):
             successor = gameState.generateSuccessor(pindex, possible_move)
 
-            _, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
+            temp_move, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
 
             current_value = max(current_value, temp_value)
 
             if current_value >= beta:
-                best_action = possible_move
-                return best_action, current_value
-            alpha = max(alpha, current_value)
+                best_max_action = possible_move
+                return best_max_action, current_value
+            # alpha = max(alpha, current_value)
+            if current_value > alpha:
+                alpha = current_value
+                best_max_action = possible_move
 
-        return best_action, current_value
+        return best_max_action, current_value
 
     def minValue(self, gameState, pindex, pdepth, alpha, beta):
-        best_action = ''
+        best_min_action = ''
         current_value = float('inf')
 
         for possible_move in gameState.getLegalActions(pindex):
             successor = gameState.generateSuccessor(pindex, possible_move)
 
-            _, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
+            temp_move, temp_value = self.alphaBetaPrune(successor, pindex + 1, pdepth, alpha, beta)
 
             current_value = min(current_value, temp_value)
 
             if current_value <= alpha:
-                best_action = possible_move
-                return best_action, current_value
-            beta = min(beta, current_value)
+                best_min_action = possible_move
+                return best_min_action, current_value
+            # beta = min(beta, current_value)
+            if current_value < beta:
+                beta = current_value
+                best_min_action = possible_move
 
-        return best_action, current_value
+        return best_min_action, current_value
 
     #  ---------------------------------------------------------------------------------------
     # alright listen up me, I'm going to apply the pruning to the minimax because it is so much extra work to do things otherwise
